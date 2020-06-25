@@ -6,6 +6,7 @@ def descompress(file):
     name_folder = file_separation[0]
     file_extension = file_separation[1:]
     size_extension = len(file_extension)
+    
     gz = False
     xz = False
     if file_extension[size_extension-2] == 'tar':
@@ -13,10 +14,13 @@ def descompress(file):
             gz = True
         elif file_extension[size_extension-1] == 'xz':
             xz = True
-        convert_extension = '.' + file_extension[size_extension-2] + '.' + file_extension[size_extension-1] 
+        if gz or xz:
+            convert_extension = '.' + file_extension[size_extension-2] + '.' + file_extension[size_extension-1] 
+        else:
+            convert_extension = '.' + file_extension[size_extension-1]
     else:
         convert_extension = '.' + file_extension[size_extension-1] 
-
+        
     try:
         compress = subprocess.run(
             ('find {} 1>&2'.format(sys.argv[1])),
@@ -48,13 +52,15 @@ def descompress(file):
                     if convert_extension == '.zip':
                         os.system('unzip {} -d {}'.format(file, name_folder))
                     elif convert_extension == '.tar.gz' and gz:
-                        os.system('tar -xzvf {}'.format(file))
+                        os.system('tar -xzvf {} -C {}'.format(file, name_folder))
                     elif convert_extension == '.tar':
                         os.system('tar -xvf {} -C {}'.format(file, name_folder))
                     elif convert_extension == '.rar':
                         os.system('unrar x {} -d {}'.format(file, name_folder))
                     elif convert_extension == '.tar.xz' and xz:
                         os.system('tar -Jxvf {}'.format(file))
+                    elif convert_extension == 'gz':
+                        os.system('gzip -d {}'.format(file))
                     else:
                         os.system('rmdir {}'.format(name_folder))
                         os.system('gunzip -r {}'.format(file))          
