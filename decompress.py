@@ -3,13 +3,29 @@ import subprocess, os, sys
 def descompress(file):
     file_separation = file.split('.')
     file_size = len(file_separation)
-    name_folder = file_separation[0]
     file_extension = file_separation[1:]
     size_extension = len(file_extension)
-    
+    name_one_extension = file_separation[:file_size-1]
+    size_array1 = len(name_one_extension)
+    name_two_extension = file_separation[:file_size-2]
+    size_array2 = len(name_two_extension)
+
+    def convert_name(value, max):
+        name_folder = ''
+        count = 1
+        for i in value: 
+            if count == max:
+                name_folder = name_folder + i
+            else:
+                name_folder = name_folder + i + '.'
+            count = count + 1
+        return name_folder
+
     gz = False
     xz = False
+    
     if file_extension[size_extension-2] == 'tar':
+        name_folder = convert_name(name_two_extension, size_array2)
         if file_extension[size_extension-1] == 'gz':
             gz = True
         elif file_extension[size_extension-1] == 'xz':
@@ -20,7 +36,8 @@ def descompress(file):
             convert_extension = '.' + file_extension[size_extension-1]
     else:
         convert_extension = '.' + file_extension[size_extension-1] 
-        
+        name_folder = convert_name(name_one_extension, size_array1)
+               
     try:
         compress = subprocess.run(
             ('find {} 1>&2'.format(sys.argv[1])),
